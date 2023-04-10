@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>D3.js Bar Chart with Hover and Tooltip</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+      /* Define the CSS for the tooltip */
+      .tooltip {
+        position: absolute;
+        padding: 8px;
+        background-color: #fff;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        pointer-events: none;
+        font-size: 14px;
+      }
+      .axis-label {
+        font-size: 14px;
+        font-weight: bold;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>D3.js example for Population of different years in India </h1>
+    <div id="chart"></div>
+    <script>
+      // Set the data
+      const data = [
+        { year: "1994", Population: 100 },
+        { year: "1995", Population: 110 },
+        { year: "1996", Population: 197 },
+        { year: "1997", Population: 398 },
+        { year: "1998", Population: 450 },
+        { year: "1999", Population: 590 },
+        { year: "2000", Population: 635 },
+        { year: "2001", Population: 780 },
+        { year: "2002", Population: 810 },
+        { year: "2003", Population: 993 }
+      ];
+
+      // Set the dimensions and margins of the chart
+      const margin = { top: 20, right: 20, bottom: 60, left: 60 };
+      const width = 600 - margin.left - margin.right;
+      const height = 400 - margin.top - margin.bottom;
+
+      // Append the SVG element to the chart div
+      const svg = d3
+        .select("#chart")
+        .append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform", `translate(${margin.left}, ${margin.top})`);
+
+      // Define the x and y scales
+      const x = d3
+        .scaleBand()
+        .range([0, width])
+        .padding(0.1)
+        .domain(data.map((d) => d.year));
+      const y = d3.scaleLinear().range([height, 0]).domain([0, d3.max(data, (d) => d.Population)]);
+
+      // Append the bars to the SVG element
+      svg
+        .selectAll("rect")
+        .data(data)
+        .enter()
+        .append("rect")
+        .attr("x", (d) => x(d.year))
+        .attr("y", (d) => y(d.Population))
+        .attr("width", x.bandwidth())
+        .attr("height", (d) => height - y(d.Population))
+        .attr("fill", "Brown")
+        // Add hover effects
+        .on("mouseover", function (event, d) {
+          // Show the tooltip
+          tooltip
+            .style("opacity", 1)
+            .html(`Year: ${d.year}<br>Population: ${d.Population}`)
+            .style("left", event.pageX + 10 + "px")
+            .style("top", event.pageY + 10 + "px");
+
+          // Highlight the bar
+		  d3.select(this).attr("fill", "steelblue");
+    })
+    .on("mouseout", function () {
+      // Hide the tooltip
+      tooltip.style("opacity", 0);
+
+      // Remove the highlight
+      d3.select(this).attr("fill", "Brown");
+    });
+
+  // Append the x-axis to the SVG element
+  svg
+    .append("g")
+    .attr("transform", `translate(0, ${height})`)
+    .call(d3.axisBottom(x));
+
+  // Append the y-axis to the SVG element
+  svg.append("g").call(d3.axisLeft(y));
+
+  // Append the tooltip to the body
+  const tooltip = d3
+    .select("body")
+    .append("div")
+    .attr("class", "tooltip")
+    .style("opacity", 0);
+
+  // Append the x-axis label
+  svg
+    .append("text")
+    .attr("class", "axis-label")
+    .attr("transform", `translate(${width / 2}, ${height + margin.top + 30})`)
+    .style("text-anchor", "middle")
+    .text("Year");
+
+  // Append the y-axis label
+  svg
+    .append("text")
+    .attr("class", "axis-label")
+    .attr("transform", "rotate(-90)")
+    .attr("y", 0 - margin.left)
+    .attr("x", 0 - height / 2)
+    .attr("dy", "1em")
+    .style("text-anchor", "middle")
+    .text("Population in Millions");
+</script>
+  </body>
+</html>
